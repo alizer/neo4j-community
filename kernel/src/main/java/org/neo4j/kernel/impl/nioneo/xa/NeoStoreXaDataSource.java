@@ -186,7 +186,7 @@ public class NeoStoreXaDataSource extends LogBackedXaDataSource
         config = conf;
         this.providers = providers;
 
-        readOnly = conf.getBoolean( Configuration.read_only );
+        readOnly = conf.get( Configuration.read_only );
         this.lockManager = lockManager;
         this.lockReleaser = lockReleaser;
         msgLog = stringLogger;
@@ -201,7 +201,7 @@ public class NeoStoreXaDataSource extends LogBackedXaDataSource
         }
 
         final TransactionFactory tf;
-        boolean shouldIntercept = conf.getBoolean( Configuration.intercept_committing_transactions );
+        boolean shouldIntercept = conf.get( Configuration.intercept_committing_transactions );
         if ( shouldIntercept && !providers.isEmpty() )
         {
             tf = new InterceptingTransactionFactory( dependencyResolver );
@@ -247,7 +247,7 @@ public class NeoStoreXaDataSource extends LogBackedXaDataSource
             this.idGenerators.put( PropertyStore.class,
                 neoStore.getPropertyStore() );
             this.idGenerators.put( PropertyIndex.class,
-                neoStore.getPropertyStore().getIndexStore() );
+                                   neoStore.getPropertyStore().getIndexStore() );
             setLogicalLogAtCreationTime( xaContainer.getLogicalLog() );
         }
         catch ( Throwable e )

@@ -71,7 +71,7 @@ public class LuceneIndexProvider extends IndexProvider
 
         xaDataSourceManager.registerDataSource(luceneDataSource);
 
-        IndexConnectionBroker<LuceneXaConnection> broker = config.getBoolean( Configuration.read_only ) ? new ReadOnlyIndexConnectionBroker<LuceneXaConnection>( txManager )
+        IndexConnectionBroker<LuceneXaConnection> broker = (boolean) config.get( Configuration.read_only ) ? new ReadOnlyIndexConnectionBroker<LuceneXaConnection>( txManager )
                 : new ConnectionBroker( txManager, luceneDataSource );
 
         // TODO This is a hack to support reload of HA instances. Remove if HA supports start/stop of single instance instead

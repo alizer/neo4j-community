@@ -71,10 +71,10 @@ public class UdcExtensionImpl extends KernelExtension<UdcTimerTask>
 
         Config config = loadConfig(kernel);
 
-        if ( !config.getBoolean( GraphDatabaseSettings.udc_enabled )) return null;
+        if ( !config.get( GraphDatabaseSettings.udc_enabled )) return null;
 
-        int firstDelay = config.getInteger( GraphDatabaseSettings.first_delay);
-        int interval = config.getInteger( GraphDatabaseSettings.interval );
+        int firstDelay = config.get( GraphDatabaseSettings.first_delay);
+        int interval = config.get( GraphDatabaseSettings.interval );
         String hostAddress = config.get( GraphDatabaseSettings.udc_host );
 
         UdcInformationCollector collector = new UdcInformationCollector(config, kernel);
