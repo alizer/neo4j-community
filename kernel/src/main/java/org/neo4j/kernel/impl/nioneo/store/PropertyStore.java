@@ -394,9 +394,9 @@ public class PropertyStore extends AbstractStore implements Store, RecordStore<P
     }
 
     @Override
-    public PropertyRecord forceGetRaw( long id )
+    public PropertyRecord forceGetRaw( PropertyRecord record )
     {
-        return forceGetRecord( id );
+        return record;
     }
 
     private PropertyRecord getRecordFromBuffer( long id, Buffer buffer )

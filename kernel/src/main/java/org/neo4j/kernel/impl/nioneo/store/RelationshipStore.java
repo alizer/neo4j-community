@@ -116,9 +116,9 @@ public class RelationshipStore extends AbstractStore implements Store, RecordSto
     }
 
     @Override
-    public RelationshipRecord forceGetRaw( long id )
+    public RelationshipRecord forceGetRaw( RelationshipRecord record )
     {
-        return forceGetRecord( id );
+        return record;
     }
 
     public RelationshipRecord getLightRel( long id )

@@ -212,9 +212,9 @@ public abstract class AbstractNameStore<T extends AbstractNameRecord> extends Ab
     }
 
     @Override
-    public T forceGetRaw( long id )
+    public T forceGetRaw( T record )
     {
-        return forceGetRecord( id );
+        return record;
     }
 
     public Collection<DynamicRecord> allocateNameRecords( int nameId, byte[] chars )

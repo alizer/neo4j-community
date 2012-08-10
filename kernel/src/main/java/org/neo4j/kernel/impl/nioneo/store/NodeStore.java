@@ -108,9 +108,9 @@ public class NodeStore extends AbstractStore implements Store, RecordStore<NodeR
     }
 
     @Override
-    public NodeRecord forceGetRaw( long id )
+    public NodeRecord forceGetRaw( NodeRecord record )
     {
-        return forceGetRecord( id );
+        return record;
     }
 
     public void updateRecord( NodeRecord record, boolean recovered )
@@ -199,6 +199,8 @@ public class NodeStore extends AbstractStore implements Store, RecordStore<NodeR
                 throw new InvalidRecordException( "NodeRecord[" + id + "] not in use" );
             case CHECK:
                 return null;
+            case FORCE:
+                break;
             }
         }
 

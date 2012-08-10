@@ -401,9 +401,9 @@ public abstract class AbstractDynamicStore extends CommonAbstractStore implement
     }
 
     @Override
-    public DynamicRecord forceGetRaw( long id )
+    public DynamicRecord forceGetRaw( DynamicRecord record )
     {
-        return forceGetRecord( id );
+        return record;
     }
 
     public Collection<DynamicRecord> getRecords( long startBlockId )

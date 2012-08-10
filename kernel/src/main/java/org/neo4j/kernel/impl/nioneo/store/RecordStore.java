@@ -22,6 +22,7 @@ package org.neo4j.kernel.impl.nioneo.store;
 import java.util.Iterator;
 
 import org.neo4j.helpers.Predicate;
+import org.neo4j.helpers.Progress;
 import org.neo4j.helpers.ProgressIndicator;
 import org.neo4j.helpers.collection.IterableWrapper;
 import org.neo4j.helpers.collection.PrefetchingIterator;
@@ -38,7 +39,7 @@ public interface RecordStore<R extends AbstractBaseRecord>
 
     public R forceGetRecord( long id );
 
-    public R forceGetRaw( long id );
+    public R forceGetRaw( R record );
 
     public void forceUpdateRecord( R record );
 
@@ -107,7 +108,7 @@ public interface RecordStore<R extends AbstractBaseRecord>
                                                      + type.getSimpleName().replace( "Record", "" ) + " records" );
         }
 
-        public static <R extends AbstractBaseRecord> Iterable<R> scan( final RecordStore<R> store,
+        public <R extends AbstractBaseRecord> Iterable<R> scan( final RecordStore<R> store,
                 final Predicate<? super R>... filters )
         {
             return new Iterable<R>()
@@ -125,7 +126,7 @@ public interface RecordStore<R extends AbstractBaseRecord>
                         {
                             scan: while ( id <= highId && id >= 0 )
                             {
-                                R record = store.forceGetRecord( id++ );
+                                R record = getRecord( store, id++ );
                                 for ( Predicate<? super R> filter : filters )
                                 {
                                     if ( !filter.accept( record ) ) continue scan;
@@ -137,6 +138,11 @@ public interface RecordStore<R extends AbstractBaseRecord>
                     };
                 }
             };
+        }
+
+        protected <R extends AbstractBaseRecord> R getRecord( RecordStore<R> store, long id )
+        {
+            return store.forceGetRecord( id );
         }
 
         public static <R extends AbstractBaseRecord> Iterable<R> scanById( final RecordStore<R> store,
@@ -160,47 +166,24 @@ public interface RecordStore<R extends AbstractBaseRecord>
 
         public <R extends AbstractBaseRecord> void applyFiltered( RecordStore<R> store, Predicate<? super R>... filters )
         {
-            apply( store, null, filters );
+            apply( store, Progress.NONE, filters );
         }
 
-        public <R extends AbstractBaseRecord> void applyFiltered( RecordStore<R> store, ProgressIndicator progress,
+        public <R extends AbstractBaseRecord> void applyFiltered( RecordStore<R> store, Progress progress,
                 Predicate<? super R>... filters )
         {
             apply( store, progress, filters );
         }
 
-        private final <R extends AbstractBaseRecord> void apply( RecordStore<R> store, ProgressIndicator progress,
+        private final <R extends AbstractBaseRecord> void apply( RecordStore<R> store, Progress progress,
                 Predicate<? super R>... filters )
         {
-            long highId = store.getHighId();
-            if ( progress == null ) progress = progressInit( store, highId );
-            if ( progress != null )
-            {
-                String name = store.getStorageFileName();
-                progress.phase( name.substring( name.lastIndexOf( '/' ) + 1 ) );
-            }
             for ( R record : scan( store, filters ) )
             {
                 store.accept( this, record );
-                if ( progress != null ) progress.update( false, record.getLongId() );
+                progress.set( record.getLongId() );
             }
-            if ( progress != null ) progress.done( highId );
-        }
-
-        /**
-         * Override to provide progress indication for the tool. Alternatively a
-         * pre-existing {@link ProgressIndicator} can be passed to the
-         * {@link #applyFiltered(RecordStore, ProgressIndicator, Predicate...)
-         * apply method}, in which case this method will not be invoked.
-         * 
-         * @param store the store progress will be reported on.
-         * @param highId the highest count the process will reach for this
-         *            store.
-         * @return a {@link ProgressIndicator} to report the progress to.
-         */
-        protected <R extends AbstractBaseRecord> ProgressIndicator progressInit( RecordStore<R> store, long highId )
-        {
-            return null;
+            progress.done();
         }
     }
 }
