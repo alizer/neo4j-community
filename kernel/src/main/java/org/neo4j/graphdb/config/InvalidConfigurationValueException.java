@@ -19,15 +19,26 @@
  */
 package org.neo4j.graphdb.config;
 
-import java.util.Locale;
-
-/**
- * This interface is available only for use, not for implementing. Implementing this interface is not expected, and
- * backwards compatibility is not guaranteed for implementors.
- */
-public interface Setting
+public class InvalidConfigurationValueException extends Exception
 {
-    public String name();
+    private final Setting setting;
+    private final String value;
+    private final String message;
 
-    public void validate( Locale locale, String value ) throws InvalidConfigurationValueException;
+    public InvalidConfigurationValueException( Setting setting, String value, String message )
+    {
+        super( String.format( "\"%s\" is not a valid value for '%s': %s", value, setting.name(), message ) );
+        this.setting = setting;
+        this.value = value;
+        this.message = message;
+    }
+
+    public InvalidConfigurationValueException( Setting setting, String value, Exception cause )
+    {
+        super( String.format( "\"%s\" is not a valid value for '%s': %s", value, setting.name(), cause.getMessage() ),
+               cause );
+        this.setting = setting;
+        this.value = value;
+        this.message = null;
+    }
 }

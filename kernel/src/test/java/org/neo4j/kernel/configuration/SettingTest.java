@@ -17,17 +17,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.neo4j.graphdb.config;
+package org.neo4j.kernel.configuration;
 
-import java.util.Locale;
+import org.junit.Test;
 
-/**
- * This interface is available only for use, not for implementing. Implementing this interface is not expected, and
- * backwards compatibility is not guaranteed for implementors.
- */
-public interface Setting
+import static org.junit.Assert.assertEquals;
+import static org.neo4j.helpers.collection.MapUtil.stringMap;
+import static org.neo4j.kernel.configuration.Setting.stringSetting;
+
+public class SettingTest
 {
-    public String name();
+    @Test
+    public void shouldParseStringSetting() throws Exception
+    {
+        // given
+        Setting<String> setting = stringSetting( "foo" );
 
-    public void validate( Locale locale, String value ) throws InvalidConfigurationValueException;
+        // when
+        String value = config( "foo", "bar" ).get( setting );
+
+        // then
+        assertEquals( "bar", value );
+    }
+
+    private static Config config( String key, String value )
+    {
+        return new Config( stringMap( key, value ) );
+    }
 }

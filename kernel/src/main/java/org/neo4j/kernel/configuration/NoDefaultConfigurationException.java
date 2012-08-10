@@ -17,17 +17,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.neo4j.graphdb.config;
+package org.neo4j.kernel.configuration;
 
-import java.util.Locale;
-
-/**
- * This interface is available only for use, not for implementing. Implementing this interface is not expected, and
- * backwards compatibility is not guaranteed for implementors.
- */
-public interface Setting
+class NoDefaultConfigurationException extends Throwable
 {
-    public String name();
+    private final Setting<? super Object> setting;
 
-    public void validate( Locale locale, String value ) throws InvalidConfigurationValueException;
+    public NoDefaultConfigurationException( Setting<? super Object> setting )
+    {
+        super( String.format( "'%s' does not have a default value", setting.name() ) );
+        this.setting = setting;
+    }
 }

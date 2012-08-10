@@ -26,9 +26,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-import org.neo4j.graphdb.config.Setting;
 import org.neo4j.graphdb.factory.GraphDatabaseSetting;
 import org.neo4j.helpers.Function;
 import org.neo4j.helpers.TimeUtil;
@@ -59,7 +59,8 @@ public class Config implements DiagnosticsProvider
     // instantiated.
     private StringLogger log = new BufferingLogger();
 	private final ConfigurationValidator validator;
-    
+    private final Locale locale = Locale.getDefault();
+
     public Config()
     {
         this(new HashMap<String,String>(), Collections.<Class<?>>emptyList());
@@ -102,7 +103,7 @@ public class Config implements DiagnosticsProvider
 
     /**
      * Retrieve a configuration property.
-     * 
+     *
      * @param setting
      * @return
      */
@@ -112,6 +113,20 @@ public class Config implements DiagnosticsProvider
         if (string != null)
             string = string.trim();
         return setting.valueOf(string, this);
+    }
+
+    /**
+     * Retrieve a configuration property.
+     *
+     * @param setting
+     * @return
+     */
+    public <T> T get( Setting<T> setting )
+    {
+        String string = params.get( setting.name() );
+        if (string != null)
+            string = string.trim();
+        return setting.parse( string, locale, this );
     }
 
     /**

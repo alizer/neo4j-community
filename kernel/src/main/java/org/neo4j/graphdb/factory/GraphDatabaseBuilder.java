@@ -25,10 +25,12 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.config.InvalidConfigurationValueException;
 import org.neo4j.graphdb.config.Setting;
 
 /**
@@ -64,7 +66,14 @@ public class GraphDatabaseBuilder
             config.remove( setting.name() );
         } else
         {
-            setting.validate( value );
+            try
+            {
+                setting.validate( Locale.getDefault(), value );
+            }
+            catch ( InvalidConfigurationValueException e )
+            {
+                throw new IllegalArgumentException( e.getMessage(), e );
+            }
             config.put( setting.name(), value );
         }
         return this;
