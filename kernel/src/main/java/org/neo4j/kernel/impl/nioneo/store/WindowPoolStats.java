@@ -33,10 +33,10 @@ public class WindowPoolStats
     private final int missCount;
     private final int oomCount;
     
-    public WindowPoolStats( String name, long memAvail, long memUsed, int windowCount,
+    public WindowPoolStats( String fileName, long memAvail, long memUsed, int windowCount,
             int windowSize, int hitCount, int missCount, int oomCount )
     {
-        this.name = name;
+        this.name = fileName.substring( fileName.lastIndexOf( '/' ) + 1 );
         this.memAvail = memAvail;
         this.memUsed = memUsed;
         this.windowCount = windowCount;
