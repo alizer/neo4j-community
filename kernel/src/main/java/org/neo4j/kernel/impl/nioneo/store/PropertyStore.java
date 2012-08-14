@@ -672,6 +672,14 @@ public class PropertyStore extends AbstractStore implements Store, RecordStore<P
         return list;
     }
 
+    @Override
+    public void logAllWindowPoolStats( StringLogger.LineLogger logger )
+    {
+        logger.logLine( stringPropertyStore.getWindowPoolStats().toString() );
+        logger.logLine( arrayPropertyStore.getWindowPoolStats().toString() );
+        logger.logLine( getWindowPoolStats().toString() );
+    }
+
     public int getStringBlockSize()
     {
         return stringPropertyStore.getBlockSize();
