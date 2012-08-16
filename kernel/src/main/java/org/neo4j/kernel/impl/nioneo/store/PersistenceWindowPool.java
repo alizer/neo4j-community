@@ -28,6 +28,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -70,6 +73,10 @@ public class PersistenceWindowPool
 
     private final boolean readOnly;
     
+    private final AtomicLong refreshTime = new AtomicLong();
+    private final AtomicLong refreshWaitTime = new AtomicLong();
+    private final AtomicInteger refreshes = new AtomicInteger();
+
     /**
      * Create new pool for a store.
      *
@@ -464,14 +471,17 @@ public class PersistenceWindowPool
     {
         if ( brickMiss < REFRESH_BRICK_COUNT || brickSize <= 0 )
             return;
-     
+
+        final long preTS = System.nanoTime(), startTS, endTS;
         synchronized ( this )
         {
+            startTS = System.nanoTime();
+
             brickMiss = 0;
             Pair<List<BrickElement>, List<BrickElement>> currentMappings = gatherMappedVersusUnmappedWindows();
             List<BrickElement> mappedBricks = currentMappings.first();
             List<BrickElement> unmappedBricks = currentMappings.other();
-            
+
             // Fill up unused memory, i.e. map unmapped bricks as much as available memory allows
             // and request patterns signals. Start the loop from the end of the array where the
             // bricks with highest hit ratio are.
@@ -483,7 +493,7 @@ public class PersistenceWindowPool
                     // We have more memory available, but no more windows have actually
                     // been requested so don't map unused random windows.
                     return;
-                
+
                 allocateNewWindow( unmappedBrick );
             }
             
@@ -500,7 +510,7 @@ public class PersistenceWindowPool
                     // We've passed a point where we don't have any unmapped brick
                     // with a higher hit ratio then the lowest mapped brick. We're done.
                     break;
-                
+
                 LockableWindow window = mappedBrick.getWindow();
                 if (window.writeOutAndCloseIfFree( readOnly ) )
                 {
@@ -510,7 +520,12 @@ public class PersistenceWindowPool
                         switches++;
                 }
             }
+
+            endTS = System.nanoTime();
         }
+        refreshes.incrementAndGet();
+        refreshTime.addAndGet( (endTS - startTS) / 1000 );
+        refreshWaitTime.addAndGet( (startTS - preTS) / 1000 );
     }
 
     /**
@@ -644,8 +659,11 @@ public class PersistenceWindowPool
 
     WindowPoolStats getStats()
     {
+        int refreshes = this.refreshes.get();
+        int avgRefreshTime = refreshes == 0 ? 0 : (int) (refreshTime.get() / refreshes);
+        int avgRefreshWait = refreshes == 0 ? 0 : (int) (refreshWaitTime.get()/ refreshes);
         return new WindowPoolStats( storeName, availableMem, memUsed, brickCount,
-                brickSize, hit, miss, ooe );
+                brickSize, hit, miss, ooe, switches, avgRefreshTime, refreshes, avgRefreshWait );
     }
 
     private static class BrickElement

@@ -32,9 +32,15 @@ public class WindowPoolStats
     private final int hitCount;
     private final int missCount;
     private final int oomCount;
-    
+
+    private final int switches;
+    private final int avgRefreshTime;
+    private final int numRefreshes;
+    private final int avgRefreshWaitTime;
+
     public WindowPoolStats( String name, long memAvail, long memUsed, int windowCount,
-            int windowSize, int hitCount, int missCount, int oomCount )
+            int windowSize, int hitCount, int missCount, int oomCount, int switches, int avgRefreshTime,
+            int numRefreshes, int avgRefreshWaitTime )
     {
         this.name = name;
         this.memAvail = memAvail;
@@ -44,6 +50,10 @@ public class WindowPoolStats
         this.hitCount = hitCount;
         this.missCount = missCount;
         this.oomCount = oomCount;
+        this.switches = switches;
+        this.avgRefreshTime = avgRefreshTime;
+        this.numRefreshes = numRefreshes;
+        this.avgRefreshWaitTime = avgRefreshWaitTime;
     }
     
     public String getName()
@@ -85,7 +95,7 @@ public class WindowPoolStats
     {
         return oomCount;
     }
-    
+
     @Override
     public String toString()
     {
@@ -96,6 +106,11 @@ public class WindowPoolStats
                 "win size:" + windowSize + " " +
                 "hits:" + hitCount + " " +
                 "misses:" + missCount + " " +
-                "ooms:" + oomCount + "]";
+                "ooms:" + oomCount + " " +
+                "switches:" + switches + " " +
+                "avg refr time:" + avgRefreshTime + "us " +
+                "refreshes:" + numRefreshes + " " +
+                "avg refr wait:" + avgRefreshWaitTime + "us" +
+                "]";
     }
 }
