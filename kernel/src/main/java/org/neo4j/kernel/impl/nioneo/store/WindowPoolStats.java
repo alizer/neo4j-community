@@ -32,9 +32,18 @@ public class WindowPoolStats
     private final int hitCount;
     private final int missCount;
     private final int oomCount;
+
+    private int switches;
+
+    private int avgRefreshTime;
+
+    private int numRefreshes;
+
+    private int avertedRefreshes;
     
     public WindowPoolStats( String fileName, long memAvail, long memUsed, int windowCount,
-            int windowSize, int hitCount, int missCount, int oomCount )
+            int windowSize, int hitCount, int missCount, int oomCount, int switches, int avgRefreshTime,
+            int numRefreshes, int avertedRefreshes )
     {
         this.name = fileName.substring( fileName.lastIndexOf( '/' ) + 1 );
         this.memAvail = memAvail;
@@ -44,6 +53,10 @@ public class WindowPoolStats
         this.hitCount = hitCount;
         this.missCount = missCount;
         this.oomCount = oomCount;
+        this.switches = switches;
+        this.avgRefreshTime = avgRefreshTime;
+        this.numRefreshes = numRefreshes;
+        this.avertedRefreshes = avertedRefreshes;
     }
     
     public String getName()
@@ -86,16 +99,42 @@ public class WindowPoolStats
         return oomCount;
     }
     
+    public int getSwitches()
+    {
+        return switches;
+    }
+    
+    public int getAvgRefreshTime()
+    {
+        return avgRefreshTime;
+    }
+    
+    public int getNumRefreshes()
+    {
+        return numRefreshes;
+    }
+    
+    public int getAvertedRefreshes()
+    {
+        return avertedRefreshes;
+    }
+    
     @Override
     public String toString()
     {
         return "WindowPoolStats[" +
-                "mem available:" + memAvail + " " +
-                "mem used:" + memUsed + " " +
-                "windows:" + windowCount + " " +
-                "win size:" + windowSize + " " +
-                "hits:" + hitCount + " " +
-                "misses:" + missCount + " " +
-                "ooms:" + oomCount + "]";
+                "store:'" + name + "', " +
+                "mem available:" + memAvail + ", " +
+                "mem used:" + memUsed + ", " +
+                "windows:" + windowCount + ", " +
+                "win size:" + windowSize + ", " +
+                "hits:" + hitCount + ", " +
+                "misses:" + missCount + ", " +
+                "ooms:" + oomCount + ", " +
+                "switches:" + switches + ", " +
+                "avg refr time:" + avgRefreshTime + "us, " +
+                "refreshes:" + numRefreshes + ", " +
+                "averted refreshes:" + avertedRefreshes +
+                "]";
     }
 }
